@@ -1,108 +1,65 @@
 package DAA;
 import java.util.*;
-import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 class Order implements Comparable<Order> {
-    String orderId;
+    String id;
     long timestamp;
 
-    public Order(String orderId, long timestamp) {
-        this.orderId = orderId;
-        this.timestamp = timestamp;
+    Order(String id, long time) {
+        this.id = id;
+        this.timestamp = time;
     }
 
     @Override
-    public int compareTo(Order other) {
-        return Long.compare(this.timestamp, other.timestamp);
+    public int compareTo(Order o) {
+        return Long.compare(this.timestamp, o.timestamp);
     }
 }
 
 public class MergeSort {
-    private static final int NUM_ORDERS = 1000000;
+    // Generate random sample orders
+    static List<Order> generateOrders(int n) {
+        List<Order> list = new ArrayList<>();
+        Random r = new Random();
+        long now = System.currentTimeMillis() / 1000; // seconds
 
-    // Generate random orders
-    public static List<Order> generateSampleOrders(int n) {
-        List<Order> orders = new ArrayList<>(n);
+        for (int i = 1; i <= n; i++)
+            list.add(new Order("ORD" + i, now + r.nextInt(100000)));
 
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.set(2025, Calendar.JUNE, 24, 12, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        long baseTime = calendar.getTimeInMillis() / 1000; // Convert to seconds
-
-        Random random = new Random();
-
-        for (int i = 0; i < n; i++) {
-            int randomMinutes = random.nextInt(100000); // up to ~70 days
-            long timestamp = baseTime + (randomMinutes * 60);
-            orders.add(new Order("ORD" + (i + 1), timestamp));
-        }
-
-        return orders;
+        return list;
     }
 
-    // Merge Sort implementation
-    public static void mergeSort(List<Order> orders) {
-        if (orders.size() <= 1) return;
-
-        int mid = orders.size() / 2;
-        List<Order> left = new ArrayList<>(orders.subList(0, mid));
-        List<Order> right = new ArrayList<>(orders.subList(mid, orders.size()));
+    // Merge Sort
+    static void mergeSort(List<Order> list) {
+        if (list.size() <= 1) return;
+        int mid = list.size() / 2;
+        List<Order> left = new ArrayList<>(list.subList(0, mid));
+        List<Order> right = new ArrayList<>(list.subList(mid, list.size()));
 
         mergeSort(left);
         mergeSort(right);
 
-        merge(orders, left, right);
-    }
-
-    private static void merge(List<Order> result, List<Order> left, List<Order> right) {
         int i = 0, j = 0, k = 0;
-
-        while (i < left.size() && j < right.size()) {
-            if (left.get(i).timestamp <= right.get(j).timestamp) {
-                result.set(k++, left.get(i++));
-            } else {
-                result.set(k++, right.get(j++));
-            }
-        }
-
-        while (i < left.size()) {
-            result.set(k++, left.get(i++));
-        }
-
-        while (j < right.size()) {
-            result.set(k++, right.get(j++));
-        }
-    }
-
-    // Print first n orders
-    public static void printFirstNOrders(List<Order> orders, int n) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        int limit = Math.min(n, orders.size());
-        for (int i = 0; i < limit; i++) {
-            Order order = orders.get(i);
-            Date date = new Date(order.timestamp * 1000L); // Convert to milliseconds
-            System.out.println("Order ID: " + order.orderId +
-                    ", Timestamp: " + sdf.format(date));
-        }
+        while (i < left.size() && j < right.size())
+            list.set(k++, left.get(i).compareTo(right.get(j)) <= 0 ? left.get(i++) : right.get(j++));
+        while (i < left.size()) list.set(k++, left.get(i++));
+        while (j < right.size()) list.set(k++, right.get(j++));
     }
 
     public static void main(String[] args) {
-        System.out.println("Generating orders...");
-        List<Order> orders = generateSampleOrders(NUM_ORDERS);
+        List<Order> orders = generateOrders(10); // smaller number for demo
+        System.out.println("Before sorting:");
+        for (Order o : orders)
+            System.out.println(o.id + " → " + o.timestamp);
 
-        System.out.println("Sorting orders by timestamp...");
-        long startTime = System.nanoTime();
+        long start = System.nanoTime();
         mergeSort(orders);
-        long endTime = System.nanoTime();
+        long end = System.nanoTime();
 
-        double timeTaken = (endTime - startTime) / 1_000_000_000.0;
-        System.out.printf("Done! Sorted %d orders in %.2f seconds.%n",
-                NUM_ORDERS, timeTaken);
+        System.out.println("\nAfter sorting:");
+        for (Order o : orders)
+            System.out.println(o.id + " → " + o.timestamp);
 
-        System.out.println("\nFirst 5 Sorted Orders:");
-        printFirstNOrders(orders, 5);
+        System.out.printf("\nTime taken: %.3f ms%n", (end - start) / 1e6);
     }
 }
