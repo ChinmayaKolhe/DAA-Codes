@@ -47,18 +47,18 @@ public class MergeSort {
     }
 
     public static void main(String[] args) {
-        List<Order> orders = generateOrders(10); // smaller number for demo
-        System.out.println("Before sorting:");
-        for (Order o : orders)
-            System.out.println(o.id + " → " + o.timestamp);
+        List<Order> orders = generateOrders(100000); // smaller number for demo
+        System.out.println("Before sorting (first 5):");
+        for (int i = 0; i < Math.min(5, orders.size()); i++)
+            System.out.println(orders.get(i).id + " → " + orders.get(i).timestamp);
 
         long start = System.nanoTime();
         mergeSort(orders);
         long end = System.nanoTime();
 
-        System.out.println("\nAfter sorting:");
-        for (Order o : orders)
-            System.out.println(o.id + " → " + o.timestamp);
+        System.out.println("\nAfter sorting (first 5):");
+        for (int i = 0; i < Math.min(5, orders.size()); i++)
+            System.out.println(orders.get(i).id + " → " + orders.get(i).timestamp);
 
         System.out.printf("\nTime taken: %.3f ms%n", (end - start) / 1e6);
     }
