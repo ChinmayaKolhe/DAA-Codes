@@ -1,5 +1,6 @@
-package DAA;
 import java.util.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 class Order implements Comparable<Order> {
     String id;
@@ -17,6 +18,14 @@ class Order implements Comparable<Order> {
 }
 
 public class MergeSort {
+
+    // Convert UNIX timestamp to readable format
+    static String formatTimestamp(long timestamp) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.ofEpochSecond(timestamp));
+    }
+
     // Generate random sample orders
     static List<Order> generateOrders(int n) {
         List<Order> list = new ArrayList<>();
@@ -47,19 +56,20 @@ public class MergeSort {
     }
 
     public static void main(String[] args) {
-        List<Order> orders = generateOrders(100000); // smaller number for demo
+        List<Order> orders = generateOrders(1000000); // smaller number for demo
         System.out.println("Before sorting (first 5):");
-        for (int i = 0; i < Math.min(5, orders.size()); i++)
-            System.out.println(orders.get(i).id + " → " + orders.get(i).timestamp);
+        for (int i = 0; i < 5; i++)
+            System.out.println(orders.get(i).id + " -> " + formatTimestamp(orders.get(i).timestamp));
 
         long start = System.nanoTime();
         mergeSort(orders);
         long end = System.nanoTime();
 
         System.out.println("\nAfter sorting (first 5):");
-        for (int i = 0; i < Math.min(5, orders.size()); i++)
-            System.out.println(orders.get(i).id + " → " + orders.get(i).timestamp);
+        for (int i = 0; i < 5; i++)
+            System.out.println(orders.get(i).id + " -> " + formatTimestamp(orders.get(i).timestamp));
 
-        System.out.printf("\nTime taken: %.3f ms%n", (end - start) / 1e6);
+        double time=(end-start)/1000000.0;
+        System.out.println("\n Time taken:"+time);
     }
 }

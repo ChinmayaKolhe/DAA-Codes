@@ -2,7 +2,6 @@ package DAA;
 import java.util.*;
 
 public class TTScheduling {
-
     static int V; // number of courses
     static int[][] graph; // adjacency matrix
     static int[] color; // color assignment
